@@ -2,10 +2,20 @@
 #include "Walnut/EntryPoint.h"
 #include "Walnut/Image.h"
 #include "Walnut/UI/UI.h"
+#include "Installer.h"
+#include "Pages.h"
+
+#include "utils.h"
 
 #include <iostream>
 
 #include "InfinityUI.h"
+
+static std::wstring localAppdataPath = Installer::GetLocalAppDataPath();
+
+
+Pages::Pages page;
+
 
 class MainLayer : public Walnut::Layer
 {
@@ -16,8 +26,20 @@ public:
 		InfinityUI infUi(windowSize, windowPos, drawList);
 
 		infUi.Renderbackground();
+
+		//std::string localAppDataPathString = WStringToUTF8(localAppdataPath);
 		
-		ImGui::Text("Sah");
+		//ImGui::Text("Install Directory: %s", localAppDataPathString.c_str());
+		//if (ImGui::Button("Select another folder")) {
+			//std::wstring selectedPath = Installer::OpenFolderDialog(localAppdataPath);
+			
+			//if (!selectedPath.empty()) {
+			//	localAppdataPath = selectedPath;
+			//}
+		//}
+		//ImGui::Text("Selected Path");
+
+		page.RenderPageContent();
 		
 
 	}

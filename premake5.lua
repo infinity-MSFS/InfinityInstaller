@@ -5,6 +5,6 @@ workspace "InfinityLauncherInstaller"
    startproject "InfinityLauncherInstaller"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
-include "Walnut/Build-Walnut-External.lua"
+include "Walnut/Build-Walnut.lua"
 
 include "InfinityLauncherInstaller"
