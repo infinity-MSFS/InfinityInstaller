@@ -13,3 +13,5 @@ bin-int/
 !vendor/bin
 
 imgui.ini
+
+cmake-build-debug
