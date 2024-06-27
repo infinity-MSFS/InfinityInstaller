@@ -2,4 +2,11 @@
 
 ## Building
 
-Visual studio project atm, going to make into cmake project so im not ide locked
+```bash
+git clone --recursive https://github.com/infinity-MSFS/InfinityInstaller.git
+cd InfinityInstaller
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
