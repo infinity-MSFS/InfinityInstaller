@@ -25,7 +25,7 @@ void Pages::Pages::GetPageContent(Page page)
 	{
 	case Page::Welcome:
 	{
-		ImGui::Text("Welcom to Infinity Launcher");
+		ImGui::Text("Welcum to Infinity Launcher");
 
 		if (ImGui::Button("Next")) {
 			NextPage();

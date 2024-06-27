@@ -66,6 +66,9 @@ static std::unordered_map<std::string, ImFont *> s_Fonts;
 
 static Walnut::Application *s_Instance = nullptr;
 
+const int FPS_CAP = 60;
+const double FRAME_DUATION = 1.0/FPS_CAP;
+
 void check_vk_result(VkResult err)
 {
 	if (err == 0)
@@ -617,6 +620,7 @@ namespace Walnut
 		// Main loop
 		while (!glfwWindowShouldClose(m_WindowHandle) && m_Running)
 		{
+			double startTime = glfwGetTime();
 			glfwPollEvents();
 
 			{
@@ -711,6 +715,14 @@ namespace Walnut
 			m_FrameTime = time - m_LastFrameTime;
 			m_TimeStep = glm::min<float>(m_FrameTime, 0.0333f);
 			m_LastFrameTime = time;
+
+			double endTime = glfwGetTime();
+			double frameTime = endTime - startTime;
+
+			if(frameTime < FRAME_DUATION) {
+				std::this_thread::sleep_for(std::chrono::duration<double>(FRAME_DUATION - frameTime));
+			}
+
 		}
 	}
 

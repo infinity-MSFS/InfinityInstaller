@@ -20,7 +20,7 @@ namespace Walnut {
 }
 
 
-#if defined(WL_PLATFORM_WINDOWS) && !defined(WL_HEADLESS) && defined(WL_DIST)
+#if defined(RELEASE_DIST)
 
 #include <Windows.h>
 
@@ -36,4 +36,4 @@ int main(int argc, char** argv)
 	return Walnut::Main(argc, argv);
 }
 
-#endif // defined(WL_PLATFORM_WINDOWS) && defined(WL_DIST)
+#endif // defined(WL_DIST)

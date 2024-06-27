@@ -50,7 +50,9 @@ include_directories(
         ${IncludeDir.spdlog}
 )
 
-add_executable(InfinityInstaller ${SRC_FILES})
+add_executable(InfinityInstaller ${SRC_FILES}
+        src/util/FPSCounter.h
+        src/util/FPSCounter.cpp)
 
 target_sources(InfinityInstaller PRIVATE ${IMGUI_SOURCES})
 
@@ -67,3 +69,10 @@ target_link_libraries(
         glfw
         ${Vulkan_LIBRARIES}
 )
+
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    target_compile_definitions(InfinityInstaller PRIVATE RELEASE_DIST)
+    target_link_options(InfinityInstaller PRIVATE /SUBSYSTEM:WINDOWS)
+else()
+    target_link_options(InfinityInstaller PRIVATE /SUBSYSTEM:CONSOLE)
+endif()
