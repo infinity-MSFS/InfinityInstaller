@@ -21,9 +21,9 @@ namespace Walnut::UI {
 		colors[ImGuiCol_ButtonActive] = ImColor(56, 56, 56, 150);
 
 		// Frame BG
-		colors[ImGuiCol_FrameBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::propertyField);
+		colors[ImGuiCol_FrameBg] = ImColor(0, 0, 0);
 		colors[ImGuiCol_FrameBgHovered] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::propertyField);
-		colors[ImGuiCol_FrameBgActive] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::propertyField);
+		colors[ImGuiCol_FrameBgActive] = ImColor(0, 0, 0);
 
 		// Tabs
 		colors[ImGuiCol_Tab] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
@@ -67,10 +67,10 @@ namespace Walnut::UI {
 		colors[ImGuiCol_SeparatorHovered] = ImColor(39, 185, 242, 150);
 
 		// Window Background
-		colors[ImGuiCol_WindowBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
-		colors[ImGuiCol_ChildBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::background);
-		colors[ImGuiCol_PopupBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::backgroundPopup);
-		colors[ImGuiCol_Border] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::backgroundDark);
+		colors[ImGuiCol_WindowBg] = ImColor(0, 0, 0);
+		colors[ImGuiCol_ChildBg] = ImColor(0, 0, 0);
+		colors[ImGuiCol_PopupBg] = ImColor(0, 0, 0);
+		colors[ImGuiCol_Border] = ImColor(0, 0, 0);
 
 		// Tables
 		colors[ImGuiCol_TableHeaderBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::groupHeader);

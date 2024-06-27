@@ -22,20 +22,16 @@ namespace Walnut {
 
 	struct ApplicationSpecification
 	{
-		std::string Name = "Walnut App";
-		uint32_t Width = 1600;
-		uint32_t Height = 900;
+		std::string Name = "Infinity Installer";
+		uint32_t Width = 500;
+		uint32_t Height = 400;
 
 		std::filesystem::path IconPath;
 
 		bool WindowResizeable = true;
 
-		// Uses custom Walnut titlebar instead
-		// of Windows default
 		bool CustomTitlebar = false;
 
-		// Window will be created in the center
-		// of primary monitor
 		bool CenterWindow = false;
 	};
 
@@ -88,9 +84,8 @@ namespace Walnut {
 		void Init();
 		void Shutdown();
 
-		// For custom titlebars
-		void UI_DrawTitlebar(float& outTitlebarHeight);
-		void UI_DrawMenubar();
+		void SetWindowIcon(GLFWwindow* window, const unsigned char* data, int size);
+
 	private:
 		ApplicationSpecification m_Specification;
 		GLFWwindow* m_WindowHandle = nullptr;
@@ -108,9 +103,7 @@ namespace Walnut {
 		std::mutex m_EventQueueMutex;
 		std::queue<std::function<void()>> m_EventQueue;
 
-		// Resources
-		// TODO(Yan): move out of application class since this can't be tied
-		//            to application lifetime
+
 		std::shared_ptr<Walnut::Image> m_AppHeaderIcon;
 		std::shared_ptr<Walnut::Image> m_IconClose;
 		std::shared_ptr<Walnut::Image> m_IconMinimize;
@@ -118,6 +111,5 @@ namespace Walnut {
 		std::shared_ptr<Walnut::Image> m_IconRestore;
 	};
 
-	// Implemented by CLIENT
 	Application* CreateApplication(int argc, char** argv);
 }

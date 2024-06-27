@@ -1,19 +1,25 @@
 #include "Walnut/Application.h"
 #include "Walnut/EntryPoint.h"
-
 #include "Walnut/Image.h"
 #include "Walnut/UI/UI.h"
 
-class ExampleLayer : public Walnut::Layer
+#include <iostream>
+
+#include "InfinityUI.h"
+
+class MainLayer : public Walnut::Layer
 {
 public:
-	virtual void OnUIRender() override
+	virtual void OnUIRender(ImVec2 windowPos, ImVec2 windowSize) override
 	{
-		ImGui::Begin("Hello");
-		ImGui::Button("Button");
-		ImGui::End();
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		InfinityUI infUi(windowSize, windowPos, drawList);
 
-		ImGui::ShowDemoWindow();
+		infUi.Renderbackground();
+		
+		ImGui::Text("Sah");
+		
+
 	}
 };
 
@@ -21,20 +27,14 @@ Walnut::Application* Walnut::CreateApplication(int argc, char** argv)
 {
 	Walnut::ApplicationSpecification spec;
 	spec.Name = "Infinity Installer";
-	spec.CustomTitlebar = true;
+	spec.CustomTitlebar = false;
+	spec.CenterWindow = true;
+	spec.Width = 500;
+	spec.Height = 400;
 
 	Walnut::Application* app = new Walnut::Application(spec);
-	app->PushLayer<ExampleLayer>();
-	app->SetMenubarCallback([app]()
-	{
-		if (ImGui::BeginMenu("File"))
-		{
-			if (ImGui::MenuItem("Exit"))
-			{
-				app->Close();
-			}
-			ImGui::EndMenu();
-		}
-	});
+	app->PushLayer<MainLayer>();
+	
 	return app;
 }
+

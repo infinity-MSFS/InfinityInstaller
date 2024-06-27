@@ -1,6 +1,9 @@
 #pragma once
 
-namespace Walnut {
+#include "imgui.h"
+
+namespace Walnut
+{
 
 	class Layer
 	{
@@ -11,7 +14,7 @@ namespace Walnut {
 		virtual void OnDetach() {}
 
 		virtual void OnUpdate(float ts) {}
-		virtual void OnUIRender() {}
+		virtual void OnUIRender(ImVec2 windowPos, ImVec2 windowSize) {}
 	};
 
 }
