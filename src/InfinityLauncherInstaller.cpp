@@ -61,7 +61,7 @@ public:
 Walnut::Application *Walnut::CreateApplication(int argc, char **argv) {
 	Walnut::ApplicationSpecification spec;
 	spec.Name = "Infinity Installer";
-	spec.CustomTitlebar = false;
+	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;
 	spec.Width = 500;
 	spec.Height = 400;

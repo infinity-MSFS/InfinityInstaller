@@ -16,9 +16,12 @@
 #include <stdlib.h> // abort
 #define GLFW_INCLUDE_NONE
 #define GLFW_INCLUDE_VULKAN
+#define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
+#include <GLFW/glfw3native.h>
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
+
 
 #include "ImGui/ImGuiTheme.h"
 
@@ -26,6 +29,7 @@
 
 #include <iostream>
 
+#include "GLFW/glfw3native.h"
 #include "ImGui/Roboto-Regular.h"
 #include "ImGui/Roboto-Bold.h"
 #include "ImGui/Roboto-Italic.h"
@@ -78,14 +82,15 @@ void check_vk_result(VkResult err) {
 }
 
 #ifdef IMGUI_VULKAN_DEBUG_REPORT
-static VKAPI_ATTR VkBool32 VKAPI_CALL debug_report(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType, uint64_t object, size_t location, int32_t messageCode, const char *pLayerPrefix, const char *pMessage, void *pUserData)
-{
-	(void)flags;
-	(void)object;
-	(void)location;
-	(void)messageCode;
-	(void)pUserData;
-	(void)pLayerPrefix;
+static VKAPI_ATTR VkBool32 VKAPI_CALL debug_report(VkDebugReportFlagsEXT flags, VkDebugReportObjectTypeEXT objectType,
+                                                   uint64_t object, size_t location, int32_t messageCode,
+                                                   const char *pLayerPrefix, const char *pMessage, void *pUserData) {
+	(void) flags;
+	(void) object;
+	(void) location;
+	(void) messageCode;
+	(void) pUserData;
+	(void) pLayerPrefix;
 	return VK_FALSE;
 }
 #endif // IMGUI_VULKAN_DEBUG_REPORT
@@ -101,7 +106,7 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
 		create_info.enabledLayerCount = 1;
 		create_info.ppEnabledLayerNames = layers;
 
-		const char **extensions_ext = (const char **)malloc(sizeof(const char *) * (extensions_count + 1));
+		const char **extensions_ext = (const char **) malloc(sizeof(const char *) * (extensions_count + 1));
 		memcpy(extensions_ext, extensions, extensions_count * sizeof(const char *));
 		extensions_ext[extensions_count] = "VK_EXT_debug_report";
 		create_info.enabledExtensionCount = extensions_count + 1;
@@ -111,12 +116,14 @@ static void SetupVulkan(const char **extensions, uint32_t extensions_count) {
 		check_vk_result(err);
 		free(extensions_ext);
 
-		auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(g_Instance, "vkCreateDebugReportCallbackEXT");
+		auto vkCreateDebugReportCallbackEXT = (PFN_vkCreateDebugReportCallbackEXT) vkGetInstanceProcAddr(
+			g_Instance, "vkCreateDebugReportCallbackEXT");
 		IM_ASSERT(vkCreateDebugReportCallbackEXT != NULL);
 
 		VkDebugReportCallbackCreateInfoEXT debug_report_ci = {};
 		debug_report_ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
-		debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
+		debug_report_ci.flags = VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_WARNING_BIT_EXT |
+		                        VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT;
 		debug_report_ci.pfnCallback = debug_report;
 		debug_report_ci.pUserData = NULL;
 		err = vkCreateDebugReportCallbackEXT(g_Instance, &debug_report_ci, g_Allocator, &g_DebugReport);
@@ -215,8 +222,13 @@ static void SetupVulkanWindow(ImGui_ImplVulkanH_Window *wd, VkSurfaceKHR surface
 	}
 
 	const VkFormat requestSurfaceImageFormat[] = {
-		VK_FORMAT_B8G8R8A8_UNORM, VK_FORMAT_R8G8B8A8_UNORM, VK_FORMAT_B8G8R8_UNORM, VK_FORMAT_R8G8B8_UNORM
+		VK_FORMAT_B8G8R8A8_UNORM,
+		VK_FORMAT_R8G8B8A8_UNORM,
+		VK_FORMAT_A8B8G8R8_UNORM_PACK32,
+		VK_FORMAT_B8G8R8_UNORM,
+		VK_FORMAT_R8G8B8_UNORM
 	};
+
 	const VkColorSpaceKHR requestSurfaceColorSpace = VK_COLORSPACE_SRGB_NONLINEAR_KHR;
 	wd->SurfaceFormat = ImGui_ImplVulkanH_SelectSurfaceFormat(g_PhysicalDevice, wd->Surface, requestSurfaceImageFormat,
 	                                                          (size_t) IM_ARRAYSIZE(requestSurfaceImageFormat),
@@ -239,7 +251,8 @@ static void CleanupVulkan() {
 	vkDestroyDescriptorPool(g_Device, g_DescriptorPool, g_Allocator);
 
 #ifdef IMGUI_VULKAN_DEBUG_REPORT
-	auto vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT)vkGetInstanceProcAddr(g_Instance, "vkDestroyDebugReportCallbackEXT");
+	auto vkDestroyDebugReportCallbackEXT = (PFN_vkDestroyDebugReportCallbackEXT) vkGetInstanceProcAddr(
+		g_Instance, "vkDestroyDebugReportCallbackEXT");
 	vkDestroyDebugReportCallbackEXT(g_Instance, g_DebugReport, g_Allocator);
 #endif // IMGUI_VULKAN_DEBUG_REPORT
 
@@ -369,6 +382,40 @@ namespace Walnut {
 		return *s_Instance;
 	}
 
+	WNDPROC originalWndProc = nullptr;
+
+	LRESULT CALLBACK CustomWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+		switch (message) {
+			case WM_GETMINMAXINFO: {
+				MINMAXINFO *minMaxInfo = (MINMAXINFO *) lParam;
+				minMaxInfo->ptMinTrackSize.x = 520;
+				minMaxInfo->ptMinTrackSize.y = 420;
+				minMaxInfo->ptMaxTrackSize.x = 520;
+				minMaxInfo->ptMaxTrackSize.y = 420;
+				// for some reason setting it to 400x500 like is defined for the window size causes it to resize abruptly, so we add 20px on each side
+				return 0;
+			}
+			case WM_SIZE: {
+				// Ensure the title bar stays removed when resizing
+				LONG style = GetWindowLong(hWnd, GWL_STYLE);
+				style &= ~WS_CAPTION;
+				SetWindowLong(hWnd, GWL_STYLE, style);
+				return DefWindowProc(hWnd, message, wParam, lParam);
+			}
+			default:
+				return CallWindowProc(originalWndProc, hWnd, message, wParam, lParam);
+		}
+	}
+
+	// Original window procedure pointer
+
+
+	// Subclass the window to use the custom window procedure
+	void SubclassGLFWWindow(GLFWwindow *window) {
+		HWND hwnd = glfwGetWin32Window(window);
+		originalWndProc = (WNDPROC) SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR) CustomWndProc);
+	}
+
 	void Application::Init() {
 		Log::Init();
 
@@ -379,6 +426,7 @@ namespace Walnut {
 		}
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_TITLEBAR, GLFW_FALSE);
 
 
 		GLFWmonitor *primaryMonitor = glfwGetPrimaryMonitor();
@@ -387,10 +435,13 @@ namespace Walnut {
 		int monitorX, monitorY;
 		glfwGetMonitorPos(primaryMonitor, &monitorX, &monitorY);
 
-		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
 		m_WindowHandle = glfwCreateWindow(m_Specification.Width, m_Specification.Height, m_Specification.Name.c_str(),
 		                                  NULL, NULL);
+
+		SubclassGLFWWindow(m_WindowHandle);
+
+		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
 		if (m_Specification.CenterWindow) {
 		}
@@ -398,7 +449,7 @@ namespace Walnut {
 		glfwSetWindowPos(m_WindowHandle,
 		                 monitorX + (videoMode->width - m_Specification.Width) / 2,
 		                 monitorY + (videoMode->height - m_Specification.Height) / 2);
-		glfwSetWindowAttrib(m_WindowHandle, GLFW_RESIZABLE, GLFW_FALSE);
+		//glfwSetWindowAttrib(m_WindowHandle, GLFW_RESIZABLE, GLFW_FALSE); // non resizable windows will force the native titlbar if decorations are kept on thus we will just block all the window resize events before they get to the window
 
 		SetWindowIcon(m_WindowHandle, g_infAppIconTransparent, sizeof(g_infAppIconTransparent));
 
@@ -455,10 +506,11 @@ namespace Walnut {
 		style.ChildRounding = 6.0f;
 		style.PopupRounding = 6.0f;
 		style.FrameRounding = 6.0f;
+		style.Colors[ImGuiCol_WindowBg].w = 0.0f;
 		style.WindowTitleAlign = ImVec2(0.5f, 0.5f);
 
 		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) {
-			style.WindowRounding = 0.0f;
+			style.WindowRounding = 12.0f;
 			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
 		}
 
@@ -577,7 +629,7 @@ namespace Walnut {
 		m_Running = true;
 
 		ImGui_ImplVulkanH_Window *wd = &g_MainWindowData;
-		ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+		ImVec4 clear_color = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
 		ImGuiIO &io = ImGui::GetIO();
 
 		io.IniFilename = nullptr;
@@ -627,7 +679,7 @@ namespace Walnut {
 				// needs the -1 for artifact o nthe left side when on displays with lower res
 				ImGui::SetNextWindowSize(ImVec2(viewport->Size.x + 1, viewport->Size.y));
 				ImGui::SetNextWindowViewport(viewport->ID);
-				ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+				ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 				window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |

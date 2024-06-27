@@ -7,21 +7,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 find_package(Vulkan REQUIRED)
 
 file(GLOB_RECURSE SRC_FILES
-    "src/*.c"
-    "src/*.cpp"
-    "src/*.h"
-    "src/*.hpp"
-    "dependencies/Walnut/*.c"
-    "dependencies/Walnut/*.cpp"
-    "dependencies/Walnut/*.h"
-    "dependencies/glm/glm/*.c"
-    "dependencies/glm/glm/*.cpp"
-    "dependencies/glm/glm/*.h"
-    "dependencies/glm/glm/*.hpp"
-    "dependencies/stb_image/*.h"
+        "src/*.c"
+        "src/*.cpp"
+        "src/*.h"
+        "src/*.hpp"
+        "dependencies/Walnut/*.c"
+        "dependencies/Walnut/*.cpp"
+        "dependencies/Walnut/*.h"
+        "dependencies/glm/glm/*.c"
+        "dependencies/glm/glm/*.cpp"
+        "dependencies/glm/glm/*.h"
+        "dependencies/glm/glm/*.hpp"
+        "dependencies/stb_image/*.h"
 
 )
-
 
 
 set(IMGUI_SOURCES
@@ -33,7 +32,6 @@ set(IMGUI_SOURCES
         dependencies/imgui/backends/imgui_impl_glfw.cpp
         dependencies/imgui/backends/imgui_impl_vulkan.cpp
 )
-
 
 
 include_directories(
@@ -56,7 +54,7 @@ add_executable(InfinityInstaller ${SRC_FILES}
 
 target_sources(InfinityInstaller PRIVATE ${IMGUI_SOURCES})
 
-add_subdirectory(dependencies/GLFW)
+add_subdirectory(dependencies/glfw)
 add_subdirectory(dependencies/yaml-cpp)
 
 add_library(GLFW INTERFACE)
@@ -64,15 +62,15 @@ target_include_directories(GLFW INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/dependenci
 target_link_libraries(GLFW INTERFACE glfw)
 
 target_link_libraries(
-    InfinityInstaller PRIVATE
-    yaml-cpp
+        InfinityInstaller PRIVATE
+        yaml-cpp
         glfw
         ${Vulkan_LIBRARIES}
 )
 
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
     target_compile_definitions(InfinityInstaller PRIVATE RELEASE_DIST)
     target_link_options(InfinityInstaller PRIVATE /SUBSYSTEM:WINDOWS)
-else()
+else ()
     target_link_options(InfinityInstaller PRIVATE /SUBSYSTEM:CONSOLE)
-endif()
+endif ()
