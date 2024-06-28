@@ -50,7 +50,8 @@ include_directories(
 
 add_executable(InfinityInstaller ${SRC_FILES}
         src/util/FPSCounter.h
-        src/util/FPSCounter.cpp)
+        src/util/FPSCounter.cpp
+        dependencies/Walnut/src/GUI/Images/windowIcons.h)
 
 target_sources(InfinityInstaller PRIVATE ${IMGUI_SOURCES})
 

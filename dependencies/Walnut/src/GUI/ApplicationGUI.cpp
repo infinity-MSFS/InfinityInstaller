@@ -35,6 +35,7 @@
 #include "ImGui/Roboto-Italic.h"
 
 #include "Images/Infinity-App-Icon.h"
+#include "Images/windowIcons.h"
 
 extern bool g_ApplicationRunning;
 
@@ -355,7 +356,7 @@ static void FramePresent(ImGui_ImplVulkanH_Window *wd) {
 		return;
 	}
 	check_vk_result(err);
-	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->ImageCount; // Now we can use the next set of semaphores
+	wd->SemaphoreIndex = (wd->SemaphoreIndex + 1) % wd->ImageCount;
 }
 
 static void glfw_error_callback(int error, const char *description) {
@@ -396,7 +397,6 @@ namespace Walnut {
 				return 0;
 			}
 			case WM_SIZE: {
-				// Ensure the title bar stays removed when resizing
 				LONG style = GetWindowLong(hWnd, GWL_STYLE);
 				style &= ~WS_CAPTION;
 				SetWindowLong(hWnd, GWL_STYLE, style);
@@ -407,10 +407,6 @@ namespace Walnut {
 		}
 	}
 
-	// Original window procedure pointer
-
-
-	// Subclass the window to use the custom window procedure
 	void SubclassGLFWWindow(GLFWwindow *window) {
 		HWND hwnd = glfwGetWin32Window(window);
 		originalWndProc = (WNDPROC) SetWindowLongPtr(hwnd, GWLP_WNDPROC, (LONG_PTR) CustomWndProc);
@@ -471,12 +467,10 @@ namespace Walnut {
 		const char **extensions = glfwGetRequiredInstanceExtensions(&extensions_count);
 		SetupVulkan(extensions, extensions_count);
 
-		// Create Window Surface
 		VkSurfaceKHR surface;
 		VkResult err = glfwCreateWindowSurface(g_Instance, m_WindowHandle, g_Allocator, &surface);
 		check_vk_result(err);
 
-		// Create Framebuffers
 		int w, h;
 		glfwGetFramebufferSize(m_WindowHandle, &w, &h);
 		ImGui_ImplVulkanH_Window *wd = &g_MainWindowData;
@@ -485,17 +479,15 @@ namespace Walnut {
 		s_AllocatedCommandBuffers.resize(wd->ImageCount);
 		s_ResourceFreeQueue.resize(wd->ImageCount);
 
-		// Setup Dear ImGui context
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO &io = ImGui::GetIO();
 		(void) io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
-		// io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-		// Theme colors
+
+		// TODO: infinity colors
 		UI::SetHazelTheme();
 
 		// Style
@@ -572,6 +564,16 @@ namespace Walnut {
 			void *data = Image::Decode(g_InfinityIcon, sizeof(g_InfinityIcon), w, h);
 			m_AppHeaderIcon = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
 			free(data);
+		} {
+			uint32_t w, h;
+			void *data = Image::Decode(g_WindowCloseIcon, sizeof(g_WindowCloseIcon), w, h);
+			m_IconClose = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
+			free(data);
+		} {
+			uint32_t w, h;
+			void *data = Image::Decode(g_WindowMinimizeIcon, sizeof(g_WindowMinimizeIcon), w, h);
+			m_IconMinimize = std::make_shared<Walnut::Image>(w, h, ImageFormat::RGBA, data);
+			free(data);
 		}
 	}
 
@@ -586,11 +588,9 @@ namespace Walnut {
 		m_IconMaximize.reset();
 		m_IconRestore.reset();
 
-		// Cleanup
 		VkResult err = vkDeviceWaitIdle(g_Device);
 		check_vk_result(err);
 
-		// Free resources in queue
 		for (auto &queue: s_ResourceFreeQueue) {
 			for (auto &func: queue)
 				func();
@@ -611,6 +611,138 @@ namespace Walnut {
 
 		Log::Shutdown();
 	}
+
+
+	void Application::UI_DrawTitlebar(float &outTitlebarHeight) {
+		const float titlebarHeight = 40.0f;
+		const bool isMaximized = IsMaximized();
+		float titlebarVerticalOffset = isMaximized ? -6.0f : 0.0f;
+		const ImVec2 windowPadding = ImGui::GetCurrentWindow()->WindowPadding;
+
+		ImGui::SetCursorPos(ImVec2(windowPadding.x, windowPadding.y + titlebarVerticalOffset));
+		const ImVec2 titlebarMin = ImGui::GetCursorScreenPos();
+		const ImVec2 titlebarMax = {
+			ImGui::GetCursorScreenPos().x + ImGui::GetWindowWidth() - windowPadding.y * 2.0f,
+			ImGui::GetCursorScreenPos().y + titlebarHeight
+		};
+		auto *bgDrawList = ImGui::GetBackgroundDrawList();
+		auto *fgDrawList = ImGui::GetForegroundDrawList();
+		bgDrawList->AddRectFilled(titlebarMin, titlebarMax, UI::Colors::Theme::titlebar);
+
+		//fgDrawList->AddRect(titlebarMin, titlebarMax, UI::Colors::Theme::invalidPrefab);
+		fgDrawList->AddRectFilled(titlebarMin, titlebarMax, ImColor(0.0f, 0.0f, 0.0f, 0.2f));
+		fgDrawList->AddLine(ImVec2(titlebarMin.x, titlebarMax.y), titlebarMax, ImColor(0.7f, 0.7f, 0.7f, 0.3f), 1); {
+			const int logoWidth = 36;
+			const int logoHeight = 36;
+			const ImVec2 logoOffset(16.0f + windowPadding.x, 5.0f + windowPadding.y + titlebarVerticalOffset);
+			const ImVec2 logoRectStart = {
+				ImGui::GetItemRectMin().x + logoOffset.x, ImGui::GetItemRectMin().y + logoOffset.y
+			};
+			const ImVec2 logoRectMax = {logoRectStart.x + logoWidth, logoRectStart.y + logoHeight};
+			fgDrawList->AddImage(m_AppHeaderIcon->GetDescriptorSet(), logoRectStart, logoRectMax);
+		}
+
+		ImGui::BeginHorizontal("Titlebar", {
+			                       ImGui::GetWindowWidth() - windowPadding.y * 2.0f, ImGui::GetFrameHeightWithSpacing()
+		                       });
+
+		static float moveOffsetX;
+		static float moveOffsetY;
+		const float w = ImGui::GetContentRegionAvail().x;
+		const float buttonsAreaWidth = 94;
+
+		ImGui::SetCursorPos(ImVec2(windowPadding.x, windowPadding.y + titlebarVerticalOffset));
+		// DEBUG DRAG BOUNDS
+		// fgDrawList->AddRect(ImGui::GetCursorScreenPos(), ImVec2(ImGui::GetCursorScreenPos().x + w - buttonsAreaWidth, ImGui::GetCursorScreenPos().y + titlebarHeight), UI::Colors::Theme::invalidPrefab);
+		ImGui::InvisibleButton("##titleBarDragZone", ImVec2(w - buttonsAreaWidth, titlebarHeight));
+
+		m_TitleBarHovered = ImGui::IsItemHovered();
+
+		if (isMaximized) {
+			float windowMousePosY = ImGui::GetMousePos().y - ImGui::GetCursorScreenPos().y;
+			if (windowMousePosY >= 0.0f && windowMousePosY <= 5.0f)
+				m_TitleBarHovered = true;
+		}
+
+		if (m_MenubarCallback) {
+			ImGui::SuspendLayout(); {
+				ImGui::SetItemAllowOverlap();
+				const float logoHorizontalOffset = 16.0f * 2.0f + 48.0f + windowPadding.x;
+				ImGui::SetCursorPos(ImVec2(logoHorizontalOffset, 6.0f + titlebarVerticalOffset));
+				UI_DrawMenubar();
+
+				if (ImGui::IsItemHovered())
+					m_TitleBarHovered = false;
+			}
+
+			ImGui::ResumeLayout();
+		}
+
+		const ImU32 buttonColN = UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 0.9f);
+		const ImU32 buttonColH = UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 1.2f);
+		const ImU32 buttonColP = UI::Colors::Theme::textDarker;
+		const float buttonWidth = 14.0f;
+		const float buttonHeight = 14.0f;
+
+
+		ImGui::Spring();
+		UI::ShiftCursorY(8.0f); {
+			const int iconWidth = m_IconMinimize->GetWidth();
+			const int iconHeight = m_IconMinimize->GetHeight();
+			const float padY = (buttonHeight - (float) iconHeight) / 2.0f;
+			if (ImGui::InvisibleButton("Minimize", ImVec2(buttonWidth, buttonHeight))) {
+				if (m_WindowHandle) {
+					Application::Get().QueueEvent(
+						[windowHandle = m_WindowHandle]() { glfwIconifyWindow(windowHandle); });
+				}
+			}
+
+			UI::DrawButtonImage(m_IconMinimize, buttonColN, buttonColH, buttonColP,
+			                    UI::RectExpanded(UI::GetItemRect(), 0.0f, -padY));
+		}
+
+		ImGui::Spring(-1.0f, 15.0f);
+		UI::ShiftCursorY(8.0f); {
+			const int iconWidth = m_IconClose->GetWidth();
+			const int iconHeight = m_IconClose->GetHeight();
+			if (ImGui::InvisibleButton("Close", ImVec2(buttonWidth, buttonHeight)))
+				Application::Get().Close();
+
+			UI::DrawButtonImage(m_IconClose, UI::Colors::Theme::text,
+			                    UI::Colors::ColorWithMultipliedValue(UI::Colors::Theme::text, 1.4f), buttonColP);
+		}
+
+		ImGui::Spring(-1.0f, 18.0f);
+		ImGui::EndHorizontal();
+
+		outTitlebarHeight = titlebarHeight;
+	}
+
+	void Application::UI_DrawMenubar() {
+		if (!m_MenubarCallback)
+			return;
+
+		if (m_Specification.CustomTitlebar) {
+			const ImRect menuBarRect = {
+				ImGui::GetCursorPos(),
+				{ImGui::GetContentRegionAvail().x + ImGui::GetCursorScreenPos().x, ImGui::GetFrameHeightWithSpacing()}
+			};
+
+			ImGui::BeginGroup();
+			if (UI::BeginMenubar(menuBarRect)) {
+				m_MenubarCallback();
+			}
+
+			UI::EndMenubar();
+			ImGui::EndGroup();
+		} else {
+			if (ImGui::BeginMenuBar()) {
+				m_MenubarCallback();
+				ImGui::EndMenuBar();
+			}
+		}
+	}
+
 
 	void Application::SetWindowIcon(GLFWwindow *window, const unsigned char *data, int size) {
 		GLFWimage images[1];
@@ -691,8 +823,16 @@ namespace Walnut {
 				const bool isMaximized = IsMaximized();
 
 				ImGui::Begin("DockSpaceWindow", nullptr, window_flags);
+				if (m_Specification.CustomTitlebar) {
+					float titleBarHeight;
+
+					UI_DrawTitlebar(titleBarHeight);
+					//ImGui::SetCursorPosY(titleBarHeight);
+				}
+
 				for (auto &layer: m_LayerStack)
 					layer->OnUIRender(windowPos, viewport->Size);
+
 
 				ImGui::PopStyleVar(3);
 
@@ -717,7 +857,6 @@ namespace Walnut {
 				ImGui::RenderPlatformWindowsDefault();
 			}
 
-			// Present Main Platform Window
 			if (!main_is_minimized)
 				FramePresent(wd);
 			else
