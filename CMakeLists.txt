@@ -69,9 +69,13 @@ target_link_libraries(
         ${Vulkan_LIBRARIES}
 )
 
-if (CMAKE_BUILD_TYPE STREQUAL "Release")
-    target_compile_definitions(InfinityInstaller PRIVATE RELEASE_DIST)
-    target_link_options(InfinityInstaller PRIVATE /SUBSYSTEM:WINDOWS)
-else ()
-    target_link_options(InfinityInstaller PRIVATE /SUBSYSTEM:CONSOLE)
-endif ()
+
+
+target_compile_definitions(InfinityInstaller PRIVATE 
+    $<$<CONFIG:Release>:RELEASE_DIST>
+)
+
+target_link_options(InfinityInstaller PRIVATE 
+    $<$<CONFIG:Release>:/SUBSYSTEM:WINDOWS>
+    $<$<NOT:$<CONFIG:Release>>:/SUBSYSTEM:CONSOLE>
+)
