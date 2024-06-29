@@ -49,7 +49,7 @@ public:
 
 		const double fps = fpsCounter.GetFps();
 
-		ImGui::Text("FPS: %.2f", fps);
+		//ImGui::Text("FPS: %.2f", fps);
 
 		lastFrameTime = currentFrameTime;
 
