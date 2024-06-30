@@ -8,9 +8,9 @@
 #include "imgui.h"
 
 namespace PredefinedCursorPositions {
-    const ImVec2 bottomRightButton = ImVec2(440.0, 370.0);
-    const ImVec2 bottomLeftButton = ImVec2(20.0, 370.0);
-    const ImVec2 bottomRightSupportingButton = ImVec2(380.0, 370.0);
+    const ImVec2 bottomRightButton = ImVec2(440.0, 270.0);
+    const ImVec2 bottomLeftButton = ImVec2(20.0, 270.0);
+    const ImVec2 bottomRightSupportingButton = ImVec2(380.0, 270.0);
 }
 
 

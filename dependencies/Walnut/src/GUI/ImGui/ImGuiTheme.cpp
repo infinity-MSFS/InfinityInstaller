@@ -1,11 +1,9 @@
 #include "ImGuiTheme.h"
 
 namespace Walnut::UI {
-
-	void SetHazelTheme()
-	{
-		auto& style = ImGui::GetStyle();
-		auto& colors = ImGui::GetStyle().Colors;
+	void SetHazelTheme() {
+		auto &style = ImGui::GetStyle();
+		auto &colors = ImGui::GetStyle().Colors;
 
 		//========================================================
 		/// Colours
@@ -35,7 +33,7 @@ namespace Walnut::UI {
 		// Title
 		colors[ImGuiCol_TitleBg] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
 		colors[ImGuiCol_TitleBgActive] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::titlebar);
-		colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.15f, 0.1505f, 0.151f, 1.0f };
+		colors[ImGuiCol_TitleBgCollapsed] = ImVec4{0.15f, 0.1505f, 0.151f, 1.0f};
 
 		// Resize Grip
 		colors[ImGuiCol_ResizeGrip] = ImVec4(0.91f, 0.91f, 0.91f, 0.25f);
@@ -56,7 +54,7 @@ namespace Walnut::UI {
 		colors[ImGuiCol_SliderGrabActive] = ImVec4(0.66f, 0.66f, 0.66f, 1.0f);
 
 		// Text
-		colors[ImGuiCol_Text] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::text);
+		colors[ImGuiCol_Text] = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// Checkbox
 		colors[ImGuiCol_CheckMark] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::text);
@@ -77,7 +75,7 @@ namespace Walnut::UI {
 		colors[ImGuiCol_TableBorderLight] = ImGui::ColorConvertU32ToFloat4(Colors::Theme::backgroundDark);
 
 		// Menubar
-		colors[ImGuiCol_MenuBarBg] = ImVec4{ 0.0f, 0.0f, 0.0f, 0.0f };
+		colors[ImGuiCol_MenuBarBg] = ImVec4{0.0f, 0.0f, 0.0f, 0.0f};
 
 		//========================================================
 		/// Style
@@ -85,5 +83,4 @@ namespace Walnut::UI {
 		style.FrameBorderSize = 1.0f;
 		style.IndentSpacing = 11.0f;
 	}
-
 }

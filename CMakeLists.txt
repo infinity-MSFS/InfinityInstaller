@@ -54,7 +54,10 @@ add_executable(InfinityInstaller ${SRC_FILES}
         dependencies/Walnut/src/GUI/Images/windowIcons.h
         src/Components/ProgressBar.cpp
         src/Components/ProgressBar.h
-        src/Components/PreDefCursorPositions.h)
+        src/Components/PreDefCursorPositions.h
+        src/Components/InfinityLogoPoints.h
+        src/Components/WelcomeTextAnimation.cpp
+        src/Components/WelcomeTextAnimation.h)
 
 target_sources(InfinityInstaller PRIVATE ${IMGUI_SOURCES})
 

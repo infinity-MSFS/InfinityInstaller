@@ -2,29 +2,35 @@
 
 #include "imgui.h"
 #include "vector"
+#include "Installer.h"
+#include <string>
 
 static std::vector<ImVec2> m_circlePos;
 
-class InfinityUI
-{
-public:
-	InfinityUI(ImVec2 windowSize, ImVec2 windowPos ,ImDrawList* drawList);
-	
-	void Renderbackground();
+bool RenderInstallButton(ImVec2 pos, ImVec2 size, const char *label);
 
+void RenderPathSelectBox(ImVec2 pos, ImVec2 size);
+
+class InfinityUI {
+public:
+	InfinityUI(ImVec2 windowSize, ImVec2 windowPos, ImDrawList *drawList);
+
+	void Renderbackground();
 
 private:
 	void RenderBackgroundDotsLayer();
-	void RenderBackgroundGradientLayer();
-	void RenderBackgroundBaseLayer();
-	void RenderGradientCircle(ImVec2 center, float radius,float maxOpacity, ImU32 color);
 
+	void RenderBackgroundGradientLayer();
+
+	void RenderBackgroundBaseLayer();
+
+	void RenderGradientCircle(ImVec2 center, float radius, float maxOpacity, ImU32 color);
 
 private:
-	ImDrawList* m_drawList;
+	ImDrawList *m_drawList;
 	ImVec2 m_windowPos;
 	ImVec2 m_windowSize;
-	 // 5 circles
+	// 5 circles
 
 	static void InitializeCirclePosition(int index, ImVec2 position) {
 		if (index >= 0 && index < m_circlePos.size() && m_circlePos[index].x == 0 && m_circlePos[index].y == 0) {

@@ -2,18 +2,15 @@
 #include "EntryPoint.h"
 #include "Image.h"
 #include "UI/UI.h"
-#include "Installer.h"
+
 #include "Pages.h"
 
-#include "util/utils.h"
 
 #include <iostream>
 
 #include "InfinityUI.h"
 #include "GLFW/glfw3.h"
 #include "util/FPSCounter.h"
-
-static std::wstring localAppdataPath = Installer::GetLocalAppDataPath();
 
 
 Pages::Pages page;
@@ -31,6 +28,7 @@ public:
 		fpsCounter.setLastFrameTime(lastFrameTime);
 
 		infUi.Renderbackground();
+
 
 		//std::string localAppDataPathString = WStringToUTF8(localAppdataPath);
 
@@ -64,7 +62,7 @@ Walnut::Application *Walnut::CreateApplication(int argc, char **argv) {
 	spec.CustomTitlebar = true;
 	spec.CenterWindow = true;
 	spec.Width = 500;
-	spec.Height = 400;
+	spec.Height = 300;
 
 	Walnut::Application *app = new Walnut::Application(spec);
 	app->PushLayer<MainLayer>();

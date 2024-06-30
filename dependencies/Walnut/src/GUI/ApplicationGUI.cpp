@@ -71,7 +71,7 @@ static std::unordered_map<std::string, ImFont *> s_Fonts;
 
 static Walnut::Application *s_Instance = nullptr;
 
-const int FPS_CAP = 60;
+const int FPS_CAP = 144;
 const double FRAME_DUATION = 1.0 / FPS_CAP;
 
 void check_vk_result(VkResult err) {
@@ -390,9 +390,9 @@ namespace Walnut {
 			case WM_GETMINMAXINFO: {
 				MINMAXINFO *minMaxInfo = (MINMAXINFO *) lParam;
 				minMaxInfo->ptMinTrackSize.x = 520;
-				minMaxInfo->ptMinTrackSize.y = 420;
+				minMaxInfo->ptMinTrackSize.y = 320;
 				minMaxInfo->ptMaxTrackSize.x = 520;
-				minMaxInfo->ptMaxTrackSize.y = 420;
+				minMaxInfo->ptMaxTrackSize.y = 320;
 				// for some reason setting it to 400x500 like is defined for the window size causes it to resize abruptly, so we add 20px on each side
 				return 0;
 			}
@@ -527,12 +527,20 @@ namespace Walnut {
 		ImFontConfig fontConfig;
 		fontConfig.FontDataOwnedByAtlas = false;
 		ImFont *robotoFont = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoRegular, sizeof(g_RobotoRegular), 20.0f,
-		                                                    &fontConfig);
+		                                                    &fontConfig
+		);
 		s_Fonts["Default"] = robotoFont;
 		s_Fonts["Bold"] = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoBold, sizeof(g_RobotoBold), 20.0f,
 		                                                 &fontConfig);
 		s_Fonts["Italic"] = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoItalic, sizeof(g_RobotoItalic), 20.0f,
+
 		                                                   &fontConfig);
+
+		s_Fonts["DefaultLarge"] = io.Fonts->AddFontFromMemoryTTF((void *) g_RobotoRegular, sizeof(g_RobotoRegular), 40.0f,
+		                                                         &fontConfig
+		);
+
+
 		io.FontDefault = robotoFont; {
 			VkCommandPool command_pool = wd->Frames[wd->FrameIndex].CommandPool;
 			VkCommandBuffer command_buffer = wd->Frames[wd->FrameIndex].CommandBuffer;

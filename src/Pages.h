@@ -2,6 +2,8 @@
 
 #include "imgui.h"
 #include "Components/ProgressBar.h"
+#include <vector>
+
 
 namespace Pages {
 	static int s_currentPage = 0;
@@ -32,4 +34,7 @@ namespace Pages {
 	};
 }
 
+std::vector<ImVec2> CalculateNormals(const ImVec2 *points, int num_points);
+
+void DrawPolygonWithDynamicShadow(ImDrawList *draw_list, const ImVec2 *points, const int num_points, ImColor color);
 
