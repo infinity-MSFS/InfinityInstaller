@@ -3,17 +3,9 @@
 bin/
 bin-int/
 
-# Files
-# *.vcxproj
-*.vcxproj.user
-*.vcxproj.filters
-*.sln
-
-# Exclude
-!vendor/bin
-
 imgui.ini
 
-cmake-build-debug
-cmake-build-release
+vcpkg-installed
+
+cmake-build-*
 build
