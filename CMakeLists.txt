@@ -4,7 +4,7 @@ include(FetchContent)
 include(cmake/colors.cmake)
 
 if (WIN32)
-    set(VCPKG_TRIPLET "x64-windows")
+    set(VCPKG_TRIPLET "x64-windows-static")
 else ()
     set(VCPKG_TRIPLET "x64-linux")
 endif ()
@@ -159,6 +159,27 @@ endif ()
 target_compile_definitions(InfinityInstaller PRIVATE
         $<$<CONFIG:Release>:RELEASE_DIST>
 )
+
+if(WIN32)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /MANIFEST:NO")
+
+    configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/resources.rc.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/resources.rc"
+    )
+
+    target_sources(InfinityInstaller PRIVATE
+            "${CMAKE_CURRENT_BINARY_DIR}/resources.rc"
+    )
+
+    if(MSVC)
+        set_target_properties(InfinityInstaller PROPERTIES
+                LINK_FLAGS "/MANIFEST:NO"
+                VS_GLOBAL_AppLocal "false"
+        )
+    endif()
+endif()
+
 
 if (WIN32)
     message("${Blue}Setting Up Windows Console Configuration")

@@ -68,8 +68,21 @@ Infinity::Application *Infinity::CreateApplication(int argc, char **argv) {
 }
 
 
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 namespace Infinity {
     int Main(const int argc, char **argv) {
+#ifdef WIN32
+    HMODULE vulkan = LoadLibrary("vulkan-1.dll");
+        if (!vulkan) {
+            MessageBox(nullptr, "Vulkan runtime not found. Please update / install graphics drivers or directly install Vulkan Runtime from:\n" "https://vulkan.lunarg.com/sdk/home#windows", "Missing Vulkan Runtime", MB_OK | MB_ICONERROR);
+            return 1;
+        }
+#endif
+
+
         while (g_ApplicationRunning) {
             const auto app = CreateApplication(argc, argv);
             app->Run();
